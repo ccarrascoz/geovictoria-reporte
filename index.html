@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoVictoria — Reporte Semanal</title>
+<script src="pptxgen.bundle.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F5FDFE;color:#555;min-height:100vh}
+.header{background:#fff;border-bottom:3px solid #00BCD4;padding:16px 32px;display:flex;align-items:center;gap:14px}
+.logo-mark{width:36px;height:36px;background:#00BCD4;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900}
+.logo-text{font-size:20px;font-weight:700;color:#00BCD4}
+.logo-sub{font-size:11px;color:#999;margin-top:1px}
+.main{max-width:920px;margin:0 auto;padding:28px 20px 60px}
+.card{background:#fff;border-radius:12px;border:0.5px solid #e0f7fa;padding:22px 24px;margin-bottom:18px;box-shadow:0 1px 8px rgba(0,188,212,0.06)}
+.section-title{font-size:10.5px;font-weight:700;color:#00BCD4;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:"";flex:1;height:1px;background:#E0F7FA}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px}
+label .hint{font-weight:400;color:#aaa;font-size:11px}
+input[type=text],textarea,select{width:100%;padding:9px 12px;font-size:13px;font-family:inherit;color:#555;background:#F8FEFF;border:1px solid #b2ebf2;border-radius:8px;outline:none;resize:vertical;transition:border 0.2s}
+input[type=text]:focus,textarea:focus,select:focus{border-color:#00BCD4;background:#fff;box-shadow:0 0 0 3px rgba(0,188,212,0.08)}
+.dynamic-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.dyn-row{display:flex;gap:8px;align-items:flex-start}
+.dyn-row input{flex:1}
+.btn-remove{background:none;border:1px solid #e0f7fa;border-radius:8px;color:#ccc;cursor:pointer;padding:7px 10px;font-size:13px;flex-shrink:0;line-height:1}
+.btn-remove:hover{background:#FFEBEE;color:#E53935;border-color:#EF9A9A}
+.btn-add{background:none;border:1.5px dashed #b2ebf2;border-radius:8px;color:#00BCD4;cursor:pointer;padding:8px 14px;font-size:12px;font-weight:600;width:100%;margin-top:4px}
+.btn-add:hover{background:#E0F7FA;border-color:#00BCD4}
+.risk-inner{display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;flex:1}
+.task-inner{display:grid;grid-template-columns:1fr 1fr 130px;gap:8px;flex:1}
+.col-hdr{display:grid;gap:8px;margin-bottom:3px}
+.col-hdr.risk{grid-template-columns:1fr 110px 1fr;padding-right:44px}
+.col-hdr.task{grid-template-columns:1fr 1fr 130px;padding-right:44px}
+.col-lbl{font-size:11px;color:#aaa;font-weight:600}
+.tabs{display:flex;border-radius:8px;overflow:hidden;border:1px solid #b2ebf2;margin-bottom:14px;width:fit-content}
+.tab{padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;background:#F8FEFF;color:#aaa;border:none}
+.tab.active{background:#00BCD4;color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.file-drop{border:2px dashed #b2ebf2;border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;background:#F8FEFF;position:relative;overflow:hidden}
+.file-drop:hover,.file-drop.dragover{border-color:#00BCD4;background:#E0F7FA}
+.file-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:28px;margin-bottom:8px}
+.drop-text{font-size:13px;color:#888}
+.drop-text strong{color:#00BCD4}
+.file-name{font-size:12px;color:#00897B;margin-top:8px;font-weight:600;min-height:18px}
+.generate-btn{width:100%;padding:15px;font-size:15px;font-weight:700;background:linear-gradient(135deg,#00BCD4,#0097A7);border:none;border-radius:12px;color:#fff;cursor:pointer;margin-top:6px;box-shadow:0 4px 18px rgba(0,188,212,0.28);transition:all 0.2s}
+.generate-btn:hover{transform:translateY(-2px)}
+.generate-btn:disabled{background:#bbb;cursor:not-allowed;transform:none;box-shadow:none}
+.prog-wrap{margin-top:10px;height:5px;background:#E0F7FA;border-radius:3px;overflow:hidden;display:none}
+.prog-bar{height:100%;width:0%;background:#00BCD4;border-radius:3px;transition:width 0.4s}
+.status-msg{margin-top:10px;font-size:12.5px;color:#00897B;text-align:center;min-height:18px}
+.api-row{display:flex;align-items:center;gap:10px}
+.api-row input{flex:1}
+.api-row a{font-size:11px;color:#00BCD4;white-space:nowrap;text-decoration:none}
+.hito-row{display:grid;grid-template-columns:1fr 170px;gap:14px}
+.mode-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:#E0F7FA;color:#00897B}
+select{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300BCD4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.output-section{display:none;margin-top:22px}
+.output-card{background:#fff;border:1px solid #e0f7fa;border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.output-card h3{color:#00BCD4;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.output-card textarea{font-size:12.5px;background:#F8FEFF;border:1px solid #e0f7fa}
+.mail-ta{height:300px}
+.crm-ta{height:160px}
+.dl-btn{display:inline-flex;align-items:center;gap:8px;background:#FFC107;color:#555;border:none;border-radius:10px;padding:12px 24px;font-size:14px;cursor:pointer;font-weight:700;text-decoration:none;transition:all 0.2s}
+.dl-btn:hover{background:#FFB300}
+.copy-btn{background:#00BCD4;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:12.5px;cursor:pointer;font-weight:700;margin-top:10px;transition:all 0.2s}
+.copy-btn:hover{background:#0097A7}
+.pptx-done{text-align:center;padding:16px 0;display:none}
+.info-chip{font-size:11px;background:#E0F7FA;color:#00897B;border-radius:6px;padding:4px 10px;display:inline-block;margin-bottom:10px}
+.wc{font-size:11px;color:#aaa;text-align:right;margin-top:4px}
+.wc.ok{color:#00897B}
+.wc.warn{color:#E65100}
+.mt12{margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-mark">G</div>
+  <div>
+    <div class="logo-text">GeoVictoria</div>
+    <div class="logo-sub">Generador de Reporte Semanal de Proyecto</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="card">
+    <div class="section-title">Configuraci&#xF3;n de IA</div>
+    <label>API Key de Anthropic <span class="hint">&#8212; necesaria si usas archivo o texto libre</span></label>
+    <div class="api-row">
+      <input type="text" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
+      <a href="https://console.anthropic.com" target="_blank">Obtener key &#8594;</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Informaci&#xF3;n general</div>
+    <div class="grid2">
+      <div><label>Nombre del proyecto</label><input type="text" id="proj-name" placeholder="Ej: Hospital FACH"></div>
+      <div><label>Jefe de proyecto</label><input type="text" id="proj-lead" placeholder="Nombre completo"></div>
+      <div><label>Semana del reporte</label><input type="text" id="week" placeholder="14 al 18 abril 2026"></div>
+      <div><label>% Avance general</label><input type="text" id="progress" placeholder="Ej: 35%"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Participantes <span class="mode-badge">Para el Resumen CRM</span></div>
+    <label>GeoVictoria <span class="hint">(separados por coma)</span></label>
+    <input type="text" id="part-geo" placeholder="Ej: Gonzalo Guti&#xE9;rrez, Juan Ignacio Oyarz&#xFA;n">
+    <div class="mt12">
+      <label>Cliente <span class="hint">(empresa: personas)</span></label>
+      <input type="text" id="part-cliente" placeholder="Ej: HOSPITAL FACH: V&#xED;ctor Villar, Virna">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Hito de facturaci&#xF3;n</div>
+    <div class="hito-row">
+      <div><label>Descripci&#xF3;n del hito</label><input type="text" id="hito-desc" placeholder="Ej: Comienzo de marcaje"></div>
+      <div><label>Fecha prevista</label><input type="text" id="hito-fecha" placeholder="dd/mm/aaaa"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Fuente de informaci&#xF3;n</div>
+    <div class="tabs">
+      <button class="tab active" id="tab-samu" onclick="switchTab('samu')">&#x1F4C4; Archivo de Samu (.txt)</button>
+      <button class="tab" id="tab-libre" onclick="switchTab('libre')">&#x270F; Texto libre</button>
+      <button class="tab" id="tab-manual" onclick="switchTab('manual')">&#x1F4CB; Sin reuni&#xF3;n (manual)</button>
+    </div>
+    <div class="tab-panel active" id="panel-samu">
+      <div class="info-chip">La IA extraer&#xE1; avances, riesgos, pr&#xF3;ximos pasos, tareas y Resumen CRM</div>
+      <div class="file-drop" id="file-drop">
+        <input type="file" id="file-input" accept=".txt">
+        <div class="drop-icon">&#x1F4CE;</div>
+        <div class="drop-text">Arrastra el <strong>.txt de Samu</strong> aqu&#xED; o haz clic para seleccionar</div>
+        <div class="file-name" id="file-name"></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-libre">
+      <div class="info-chip">La IA procesar&#xE1; el texto y extraer&#xE1; toda la informaci&#xF3;n</div>
+      <textarea id="texto-libre" rows="7" placeholder="Pega aqu&#xED; las notas o resumen de la reuni&#xF3;n..."></textarea>
+    </div>
+    <div class="tab-panel" id="panel-manual">
+      <div class="info-chip">Completa directamente los campos &#8212; no se usar&#xE1; IA para extraer datos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Avances de la semana <span class="mode-badge" id="badge-avances">Completados por IA</span></div>
+    <div class="dynamic-list" id="avances-list"></div>
+    <button class="btn-add" onclick="addSimple('avances-list','Ej: Se complet&#xF3; la carga de usuarios')">+ Agregar avance</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Pr&#xF3;ximos pasos <span class="mode-badge" id="badge-pasos">Completados por IA</span></div>
+    <div class="dynamic-list" id="pasos-list"></div>
+    <button class="btn-add" onclick="addSimple('pasos-list','Ej: Coordinar capacitaciones')">+ Agregar paso</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Riesgos identificados <span class="mode-badge" id="badge-riesgos">Completados por IA</span></div>
+    <div class="col-hdr risk">
+      <span class="col-lbl">Descripci&#xF3;n</span>
+      <span class="col-lbl">Nivel</span>
+      <span class="col-lbl">Mitigaci&#xF3;n</span>
+    </div>
+    <div class="dynamic-list" id="riesgos-list"></div>
+    <button class="btn-add" onclick="addRisk('','Medio','')">+ Agregar riesgo</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Tareas por involucrado <span class="mode-badge" id="badge-tareas">Completados por IA</span></div>
+    <div class="col-hdr task">
+      <span class="col-lbl">Tarea</span>
+      <span class="col-lbl">Responsable</span>
+      <span class="col-lbl">Fecha l&#xED;mite</span>
+    </div>
+    <div class="dynamic-list" id="tareas-list"></div>
+    <button class="btn-add" onclick="addTask('','','')">+ Agregar tarea</button>
+  </div>
+
+  <button class="generate-btn" id="gen-btn" onclick="generate()">Generar PowerPoint + Resumen CRM + Mail</button>
+  <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+  <div class="status-msg" id="status-msg"></div>
+
+  <div class="output-section" id="output-section">
+    <div class="pptx-done" id="pptx-done">
+      <a class="dl-btn" id="dl-link" href="#">&#x2B07; Descargar PowerPoint (.pptx)</a>
+    </div>
+    <div class="output-card">
+      <h3>&#x1F4CB; Resumen CRM <span style="font-weight:400;color:#aaa;font-size:11px;text-transform:none;letter-spacing:0">(m&#xE1;x. 200 palabras)</span></h3>
+      <textarea id="crm-text" class="crm-ta" readonly></textarea>
+      <div class="wc" id="crm-wc"></div>
+      <button class="copy-btn" onclick="copyField('crm-text', this)">Copiar Resumen CRM</button>
+    </div>
+    <div class="output-card">
+      <h3>&#x1F4E7; Texto del mail de avance</h3>
+      <textarea id="mail-text" class="mail-ta" readonly></textarea>
+      <button class="copy-btn" onclick="copyField('mail-text', this)">Copiar mail</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var currentTab = 'samu';
+var fileContent = '';
+
+// File input
+document.getElementById('file-input').addEventListener('change', function() {
+  if (this.files[0]) loadFile(this.files[0]);
+});
+
+// Drag and drop
+var dropEl = document.getElementById('file-drop');
+dropEl.addEventListener('dragover', function(e) { e.preventDefault(); dropEl.classList.add('dragover'); });
+dropEl.addEventListener('dragleave', function() { dropEl.classList.remove('dragover'); });
+dropEl.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropEl.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+function loadFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    fileContent = e.target.result;
+    document.getElementById('file-name').textContent = 'Cargado: ' + file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['samu', 'libre', 'manual'].forEach(function(t) {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+  });
+  var m = tab === 'manual';
+  ['avances', 'pasos', 'riesgos', 'tareas'].forEach(function(k) {
+    document.getElementById('badge-' + k).textContent = m ? 'Ingreso manual' : 'Completados por IA';
+  });
+}
+
+function addSimple(listId, ph) {
+  var list = document.getElementById(listId);
+  var row = document.createElement('div'); row.className = 'dyn-row';
+  var inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = ph;
+  var btn = document.createElement('button'); btn.className = 'btn-remove'; btn.textContent = 'x';
+  btn.onclick = function() { row.remove(); };
+  row.appendChild(inp); row.appendChild(btn);
+  list.appendChild(row); inp.focus();
+}
+
+function addSimpleVal(listId, val) {
+  var list = document.getElementById(listId);
+  var row = document.createElement('div'); row.className = 'dyn-row';
+  var inp = document.createElement('input'); inp.type = 'text'; inp.value = val;
+  var btn = document.createElement('button'); btn.className = 'btn-remove'; btn.textContent = 'x';
+  btn.onclick = function() { row.remove(); };
+  row.appendChild(inp); row.appendChild(btn);
+  list.appendChild(row);
+}
+
+function addRisk(desc, nivel, mit) {
+  var list = document.getElementById('riesgos-list');
+  var row = document.createElement('div'); row.className = 'dyn-row';
+  var inner = document.createElement('div'); inner.className = 'risk-inner';
+  var i1 = document.createElement('input'); i1.type = 'text'; i1.placeholder = 'Descripci\u00F3n'; i1.value = desc || '';
+  var sel = document.createElement('select');
+  ['Alto', 'Medio', 'Bajo'].forEach(function(n) {
+    var o = document.createElement('option'); o.value = n; o.textContent = n;
+    if (n === (nivel || 'Medio')) o.selected = true;
+    sel.appendChild(o);
+  });
+  var i2 = document.createElement('input'); i2.type = 'text'; i2.placeholder = 'Mitigaci\u00F3n'; i2.value = mit || '';
+  inner.appendChild(i1); inner.appendChild(sel); inner.appendChild(i2);
+  var btn = document.createElement('button'); btn.className = 'btn-remove'; btn.textContent = 'x';
+  btn.onclick = function() { row.remove(); };
+  row.appendChild(inner); row.appendChild(btn);
+  list.appendChild(row);
+}
+
+function addTask(tarea, resp, fecha) {
+  var list = document.getElementById('tareas-list');
+  var row = document.createElement('div'); row.className = 'dyn-row';
+  var inner = document.createElement('div'); inner.className = 'task-inner';
+  var i1 = document.createElement('input'); i1.type = 'text'; i1.placeholder = 'Tarea'; i1.value = tarea || '';
+  var i2 = document.createElement('input'); i2.type = 'text'; i2.placeholder = 'Responsable'; i2.value = resp || '';
+  var i3 = document.createElement('input'); i3.type = 'text'; i3.placeholder = 'dd/mm/aaaa'; i3.value = fecha || '';
+  inner.appendChild(i1); inner.appendChild(i2); inner.appendChild(i3);
+  var btn = document.createElement('button'); btn.className = 'btn-remove'; btn.textContent = 'x';
+  btn.onclick = function() { row.remove(); };
+  row.appendChild(inner); row.appendChild(btn);
+  list.appendChild(row);
+}
+
+function collectData() {
+  var av = [], pa = [], ri = [], ta = [];
+  document.querySelectorAll('#avances-list .dyn-row input').forEach(function(i) { if (i.value) av.push(i.value); });
+  document.querySelectorAll('#pasos-list .dyn-row input').forEach(function(i) { if (i.value) pa.push(i.value); });
+  document.querySelectorAll('#riesgos-list .dyn-row').forEach(function(r) {
+    var ins = r.querySelectorAll('input'), sel = r.querySelector('select');
+    if (ins[0] && ins[0].value) ri.push({ desc: ins[0].value, nivel: sel ? sel.value : 'Medio', mit: ins[1] ? ins[1].value : '' });
+  });
+  document.querySelectorAll('#tareas-list .dyn-row').forEach(function(r) {
+    var ins = r.querySelectorAll('input');
+    if (ins[0] && ins[0].value) ta.push({ tarea: ins[0].value, resp: ins[1] ? ins[1].value : '', fecha: ins[2] ? ins[2].value : '' });
+  });
+  return { avances: av, pasos: pa, riesgos: ri, tareas: ta };
+}
+
+function populateFields(data) {
+  ['avances-list', 'pasos-list', 'riesgos-list', 'tareas-list'].forEach(function(id) { document.getElementById(id).innerHTML = ''; });
+  (data.avances || []).forEach(function(v) { addSimpleVal('avances-list', v); });
+  (data.pasos || []).forEach(function(v) { addSimpleVal('pasos-list', v); });
+  (data.riesgos || []).forEach(function(r) { addRisk(r.desc, r.nivel, r.mit); });
+  (data.tareas || []).forEach(function(t) { addTask(t.tarea, t.resp, t.fecha); });
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('prog-wrap').style.display = 'block';
+  document.getElementById('prog-bar').style.width = pct + '%';
+  if (msg) document.getElementById('status-msg').textContent = msg;
+}
+
+function callClaude(key, prompt) {
+  return fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2500, messages: [{ role: 'user', content: prompt }] })
+  }).then(function(r) {
+    if (!r.ok) return r.text().then(function(t) { throw new Error('Error API (' + r.status + '): ' + t.substring(0, 200)); });
+    return r.json();
+  }).then(function(d) { return d.content[0].text; });
+}
+
+function parseJSON(raw) {
+  var fi = raw.indexOf('{'), la = raw.lastIndexOf('}');
+  if (fi !== -1 && la > fi) return JSON.parse(raw.substring(fi, la + 1));
+  return JSON.parse(raw.trim());
+}
+
+function generate() {
+  var apiKey    = document.getElementById('api-key').value.trim();
+  var projName  = document.getElementById('proj-name').value.trim();
+  var projLead  = document.getElementById('proj-lead').value.trim();
+  var week      = document.getElementById('week').value.trim();
+  var progress  = document.getElementById('progress').value.trim();
+  var hitoDesc  = document.getElementById('hito-desc').value.trim();
+  var hitoFecha = document.getElementById('hito-fecha').value.trim();
+  var partGeo   = document.getElementById('part-geo').value.trim();
+  var partCliente = document.getElementById('part-cliente').value.trim();
+
+  if (!projName || !projLead) { alert('Completa el nombre del proyecto y el jefe de proyecto.'); return; }
+
+  var needsAI = currentTab !== 'manual';
+  var trans = currentTab === 'samu' ? fileContent : currentTab === 'libre' ? document.getElementById('texto-libre').value.trim() : '';
+  if (needsAI && !apiKey) { alert('Ingresa tu API Key de Anthropic.'); return; }
+  if (needsAI && !trans) { alert(currentTab === 'samu' ? 'Carga el archivo .txt de Samu primero.' : 'Ingresa el texto de la reunion.'); return; }
+
+  var btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('output-section').style.display = 'none';
+  document.getElementById('pptx-done').style.display = 'none';
+  document.getElementById('status-msg').textContent = '';
+
+  var promise;
+  if (needsAI) {
+    setProgress(15, 'Analizando transcripcion con Claude...');
+    var partTxt = (partGeo || partCliente) ? 'PARTICIPANTES:\n*GEO: ' + partGeo + '.\n*' + partCliente + '.\n\n' : '';
+    var prompt = 'Analiza la transcripcion del proyecto "' + projName + '". Responde SOLO con JSON valido.\n' +
+      'Proyecto: ' + projName + ' | JP: ' + projLead + ' | Semana: ' + (week || 'actual') + ' | Avance: ' + (progress || '?') + '\n\n' +
+      partTxt + 'TRANSCRIPCION:\n' + trans.substring(0, 8000) + '\n\n' +
+      'Devuelve un objeto JSON con estas claves exactas:\n' +
+      'resumen (string 2-3 oraciones), avances (array de strings), pasos (array de strings), ' +
+      'riesgos (array de objetos {desc, nivel, mit}), tareas (array de objetos {tarea, resp, fecha}), ' +
+      'crm (string maximo 200 palabras: empieza con Participantes: *GEO: ' + partGeo + '. *' + partCliente + '. luego parrafo narrativo con objetivo reunion acuerdos cronograma pendientes), ' +
+      'mail (string mail profesional completo en espanol)';
+
+    promise = callClaude(apiKey, prompt).then(function(raw) {
+      setProgress(60, 'Procesando respuesta...');
+      var data = parseJSON(raw);
+      populateFields(data);
+      return data;
+    });
+  } else {
+    setProgress(20, 'Recopilando datos...');
+    var manual = collectData();
+    var res = 'El proyecto ' + projName + ' avanza. Semana: ' + (week || '') + '. Avance: ' + (progress || '') + '.';
+    if (apiKey && manual.avances.length > 0) {
+      var mp = 'Solo JSON valido sin texto extra. Proyecto: ' + projName + ' JP: ' + projLead + ' Semana: ' + week + ' Avance: ' + progress +
+        ' GEO: ' + partGeo + ' Cliente: ' + partCliente +
+        ' Avances: ' + manual.avances.join('; ') + ' Pasos: ' + manual.pasos.join('; ') +
+        ' Devuelve JSON con claves: resumen (string), crm (string max 200 palabras con participantes y narrativa), mail (string mail profesional en espanol)';
+      promise = callClaude(apiKey, mp).then(function(r) {
+        var d = parseJSON(r);
+        return Object.assign({ resumen: d.resumen || res, crm: d.crm || '', mail: d.mail || null }, manual);
+      }).catch(function() { return Object.assign({ resumen: res, crm: '', mail: null }, manual); });
+    } else {
+      promise = Promise.resolve(Object.assign({ resumen: res, crm: '', mail: null }, manual));
+    }
+  }
+
+  promise.then(function(data) {
+    setProgress(75, 'Generando PowerPoint...');
+    var fd = collectData();
+    var pd = {
+      projName: projName, projLead: projLead, week: week, progress: progress,
+      hitoDesc: hitoDesc, hitoFecha: hitoFecha, resumen: data.resumen || '',
+      avances: data.avances || fd.avances, pasos: data.pasos || fd.pasos,
+      riesgos: data.riesgos || fd.riesgos, tareas: data.tareas || fd.tareas
+    };
+    return buildPptx(pd).then(function() {
+      setProgress(95, 'Preparando outputs...');
+      showCRM(data.crm || '', partGeo, partCliente, projName, week);
+      showMail(pd, data.mail || null);
+      setProgress(100, 'Listo!');
+      document.getElementById('output-section').style.display = 'block';
+      document.getElementById('pptx-done').style.display = 'block';
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+      btn.disabled = false;
+    });
+  }).catch(function(err) {
+    document.getElementById('status-msg').textContent = 'ERROR: ' + err.message;
+    console.error(err);
+    btn.disabled = false;
+  });
+}
+
+function showCRM(aiText, partGeo, partCliente, projName, week) {
+  var text = aiText;
+  if (!text) {
+    var lines = ['Participantes:'];
+    if (partGeo) lines.push('*GEO: ' + partGeo + '.');
+    if (partCliente) lines.push('*' + partCliente + '.');
+    lines.push('');
+    lines.push('Reunion de seguimiento del proyecto ' + projName + ', semana del ' + week + '.');
+    text = lines.join('\n');
+  }
+  document.getElementById('crm-text').value = text;
+  var words = text.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
+  var el = document.getElementById('crm-wc');
+  el.textContent = words + ' / 200 palabras';
+  el.className = 'wc ' + (words <= 200 ? 'ok' : 'warn');
+}
+
+function showMail(d, aiMail) {
+  if (aiMail) { document.getElementById('mail-text').value = aiMail; return; }
+  var av = (d.avances || []).map(function(a, i) { return (i + 1) + '. ' + a; }).join('\n');
+  var pa = (d.pasos || []).map(function(p, i) { return (i + 1) + '. ' + p; }).join('\n');
+  var ri = (d.riesgos || []).map(function(r) { return '- [' + r.nivel + '] ' + r.desc; }).join('\n');
+  var ta = (d.tareas || []).map(function(t) { return '- ' + t.tarea + ' | ' + t.resp + ' | ' + t.fecha; }).join('\n');
+  document.getElementById('mail-text').value =
+    'Estimado/a equipo,\n\nComparto el reporte de avance de la semana del ' + (d.week || '') + ' del proyecto ' + d.projName + '.\n\n' +
+    'AVANCE GENERAL: ' + (d.progress || '--') + '\n\nAVANCES:\n' + (av || '--') + '\n\nPROXIMOS PASOS:\n' + (pa || '--') + '\n\n' +
+    'RIESGOS:\n' + (ri || '--') + '\n\nHITO: ' + (d.hitoDesc || '--') + ' | ' + (d.hitoFecha || '--') + '\n\n' +
+    'TAREAS:\n' + (ta || '--') + '\n\nSaludos,\n' + d.projLead + '\nGeoVictoria';
+}
+
+function copyField(id, btn) {
+  var ta = document.getElementById(id); ta.select(); document.execCommand('copy');
+  var orig = btn.textContent; btn.textContent = 'Copiado!';
+  setTimeout(function() { btn.textContent = orig; }, 2000);
+}
+
+function buildPptx(d) {
+  var GC = '00BCD4', GCD = '0097A7', GY = 'FFC107', GG = '555555', GL = '888888', GW = 'FFFFFF';
+  var pres = new PptxGenJS(); pres.layout = 'LAYOUT_16x9'; pres.title = 'Reporte - ' + d.projName;
+
+  function dL(s) {
+    s.addShape(pres.shapes.RECTANGLE, { x: 8.8, y: 0, w: 1.2, h: 0.5, fill: { color: GC }, line: { color: GC } });
+    s.addShape(pres.shapes.RECTANGLE, { x: 8.3, y: 0.5, w: 1.7, h: 0.5, fill: { color: GC }, line: { color: GC } });
+    s.addShape(pres.shapes.OVAL, { x: -0.55, y: 4.4, w: 1.45, h: 1.45, fill: { color: GY }, line: { color: GY } });
+  }
+  function dC(s) {
+    s.addShape(pres.shapes.OVAL, { x: 7.8, y: 3.5, w: 3.5, h: 3.5, fill: { color: 'B2EBF2', transparency: 45 }, line: { color: 'B2EBF2', transparency: 45 } });
+    s.addShape(pres.shapes.RECTANGLE, { x: 9.3, y: 0, w: 0.7, h: 0.32, fill: { color: GC }, line: { color: GC } });
+    s.addShape(pres.shapes.RECTANGLE, { x: 8.9, y: 0.32, w: 1.1, h: 0.32, fill: { color: GC }, line: { color: GC } });
+  }
+
+  // S1 Portada
+  var s = pres.addSlide(); s.background = { color: GW }; dL(s);
+  s.addShape(pres.shapes.OVAL, { x: 5.8, y: 0.9, w: 3.4, h: 3.4, fill: { color: 'E3F4F8' }, line: { color: 'C6EAF3' } });
+  s.addText('GeoVictoria', { x: 1, y: 1.5, w: 4.5, h: 0.42, fontSize: 14, color: GC, fontFace: 'Calibri' });
+  s.addText('Seguimiento ' + d.projName, { x: 1, y: 1.9, w: 4.8, h: 1.55, fontSize: 30, color: GG, fontFace: 'Calibri Light', valign: 'top' });
+  s.addText(d.week || 'Semana actual', { x: 1, y: 3.42, w: 4.5, h: 0.38, fontSize: 13, color: GL, fontFace: 'Calibri' });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 1, y: 3.88, w: 3.7, h: 0.45, fill: { color: 'E0F7FA' }, line: { color: GC, pt: 1 }, rectRadius: 0.08 });
+  s.addText('Jefe de Proyecto: ' + d.projLead, { x: 1, y: 3.88, w: 3.7, h: 0.45, fontSize: 11, color: GCD, fontFace: 'Calibri', align: 'center', valign: 'middle' });
+  s.addText('#YoTeAyudo', { x: 7.2, y: 4.82, w: 2.5, h: 0.36, fontSize: 14, color: GY, fontFace: 'Calibri', bold: true, align: 'right' });
+
+  // S2 Resumen
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('RESUMEN EJECUTIVO', { x: 0.5, y: 0.33, w: 7, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addText(d.projName, { x: 0.5, y: 0.6, w: 8.5, h: 0.52, fontSize: 22, color: GG, fontFace: 'Calibri Light' });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 1.18, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 1.35, w: 2.2, h: 1.6, fill: { color: 'E0F7FA' }, line: { color: GC, pt: 0.8 }, rectRadius: 0.1 });
+  s.addText('Avance\nGeneral', { x: 0.5, y: 1.45, w: 2.2, h: 0.5, fontSize: 11, color: GCD, fontFace: 'Calibri', align: 'center', bold: true });
+  s.addText(d.progress || '--', { x: 0.5, y: 1.97, w: 2.2, h: 0.72, fontSize: 34, color: GC, fontFace: 'Calibri', align: 'center', bold: true });
+  s.addText(d.resumen || '', { x: 3, y: 1.35, w: 6.4, h: 2.85, fontSize: 12.5, color: GG, fontFace: 'Calibri', valign: 'top', wrap: true });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 4.5, w: 9, h: 0.72, fill: { color: 'F5FDFE' }, line: { color: 'E0F7FA' } });
+  s.addText([{ text: 'Semana: ', options: { bold: true, color: GCD } }, { text: (d.week || '--') + '   ', options: { color: GG } }, { text: 'JP: ', options: { bold: true, color: GCD } }, { text: d.projLead || '--', options: { color: GG } }], { x: 0.7, y: 4.55, w: 8.5, h: 0.45, fontSize: 11, fontFace: 'Calibri' });
+
+  // S3 Avances
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('AVANCES DE LA SEMANA', { x: 0.5, y: 0.33, w: 8, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.72, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  var avs = (d.avances || []).slice(0, 6);
+  var nc = avs.length > 3 ? 2 : 1, cW = nc === 2 ? 4.3 : 8.8, cH = 0.72, gYv = 0.1;
+  avs.forEach(function(item, i) {
+    var col = nc === 2 ? i % 2 : 0, row = nc === 2 ? Math.floor(i / 2) : i;
+    var x = 0.5 + col * (cW + 0.2), y = 0.9 + row * (cH + gYv);
+    s.addShape(pres.shapes.RECTANGLE, { x: x, y: y, w: 0.07, h: cH, fill: { color: GC }, line: { color: GC } });
+    s.addShape(pres.shapes.RECTANGLE, { x: x + 0.07, y: y, w: cW - 0.07, h: cH, fill: { color: 'F8FEFF' }, line: { color: 'E0F7FA', pt: 0.5 } });
+    s.addShape(pres.shapes.OVAL, { x: x + 0.16, y: y + 0.17, w: 0.34, h: 0.34, fill: { color: GC }, line: { color: GC } });
+    s.addText('OK', { x: x + 0.16, y: y + 0.17, w: 0.34, h: 0.34, fontSize: 6, color: GW, align: 'center', valign: 'middle', fontFace: 'Calibri' });
+    s.addText(item, { x: x + 0.62, y: y + 0.07, w: cW - 0.72, h: cH - 0.14, fontSize: 11.5, color: GG, fontFace: 'Calibri', valign: 'middle', wrap: true });
+  });
+
+  // S4 Proximos pasos
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('PROXIMOS PASOS', { x: 0.5, y: 0.33, w: 8, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.72, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  (d.pasos || []).slice(0, 6).forEach(function(item, i) {
+    var y = 0.9 + i * 0.77;
+    s.addShape(pres.shapes.OVAL, { x: 0.5, y: y, w: 0.52, h: 0.52, fill: { color: GC }, line: { color: GC } });
+    s.addText((i + 1 < 10 ? '0' + (i + 1) : '' + (i + 1)), { x: 0.5, y: y, w: 0.52, h: 0.52, fontSize: 13, color: GW, fontFace: 'Calibri', bold: true, align: 'center', valign: 'middle' });
+    s.addShape(pres.shapes.RECTANGLE, { x: 1.2, y: y + 0.04, w: 8.2, h: 0.44, fill: { color: 'F8FEFF' }, line: { color: 'E0F7FA', pt: 0.5 } });
+    s.addText(item, { x: 1.35, y: y + 0.04, w: 7.9, h: 0.44, fontSize: 12, color: GG, fontFace: 'Calibri', valign: 'middle' });
+  });
+
+  // S5 Hito
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('HITO DE FACTURACION', { x: 0.5, y: 0.33, w: 8, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.72, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 1.08, w: 9, h: 0.07, fill: { color: GC }, line: { color: GC } });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 1.15, w: 9, h: 2.55, fill: { color: 'F8FEFF' }, line: { color: GC, pt: 1 } });
+  s.addText('Descripcion del hito', { x: 0.9, y: 1.32, w: 7, h: 0.32, fontSize: 11, color: GCD, fontFace: 'Calibri', bold: true });
+  s.addText(d.hitoDesc || 'Por definir', { x: 0.9, y: 1.62, w: 7.5, h: 0.62, fontSize: 14, color: GG, fontFace: 'Calibri', wrap: true });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 1, y: 2.62, w: 2.9, h: 0.8, fill: { color: 'E0F7FA' }, line: { color: GC, pt: 1 }, rectRadius: 0.09 });
+  s.addText('Fecha prevista', { x: 1, y: 2.67, w: 2.9, h: 0.28, fontSize: 10, color: GCD, fontFace: 'Calibri', align: 'center', bold: true });
+  s.addText(d.hitoFecha || 'Por definir', { x: 1, y: 2.93, w: 2.9, h: 0.38, fontSize: 16, color: GC, fontFace: 'Calibri', align: 'center', bold: true });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 4.6, y: 2.62, w: 4.4, h: 0.8, fill: { color: 'FFFDE7' }, line: { color: GY, pt: 1 }, rectRadius: 0.09 });
+  s.addText('Estado', { x: 4.6, y: 2.67, w: 4.4, h: 0.28, fontSize: 10, color: 'F57C00', fontFace: 'Calibri', align: 'center', bold: true });
+  s.addText('Pendiente de cumplimiento', { x: 4.6, y: 2.93, w: 4.4, h: 0.38, fontSize: 13, color: 'E65100', fontFace: 'Calibri', align: 'center' });
+
+  // S6 Riesgos
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('RIESGOS IDENTIFICADOS', { x: 0.5, y: 0.33, w: 8, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.72, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  var NC = { 'Alto': 'E53935', 'Medio': 'FFA000', 'Bajo': '43A047' };
+  var NB = { 'Alto': 'FFEBEE', 'Medio': 'FFF8E1', 'Bajo': 'E8F5E9' };
+  (d.riesgos || []).slice(0, 5).forEach(function(r, i) {
+    var y = 0.9 + i * 0.88, col = NC[r.nivel] || 'FFA000', bg = NB[r.nivel] || 'FFF8E1';
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: y, w: 9, h: 0.74, fill: { color: bg }, line: { color: col, pt: 0.5 } });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: y, w: 0.07, h: 0.74, fill: { color: col }, line: { color: col } });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.05, y: y + 0.14, w: 1.1, h: 0.34, fill: { color: col }, line: { color: col }, rectRadius: 0.05 });
+    s.addText(r.nivel || 'Medio', { x: 8.05, y: y + 0.14, w: 1.1, h: 0.34, fontSize: 9, color: 'FFFFFF', fontFace: 'Calibri', bold: true, align: 'center', valign: 'middle' });
+    s.addText(r.desc || '', { x: 0.72, y: y + 0.04, w: 7.1, h: 0.3, fontSize: 11.5, color: GG, fontFace: 'Calibri', bold: true });
+    s.addText('Mitigacion: ' + (r.mit || 'Por definir'), { x: 0.72, y: y + 0.37, w: 7.1, h: 0.28, fontSize: 10, color: GL, fontFace: 'Calibri' });
+  });
+
+  // S7 Tareas
+  s = pres.addSlide(); s.background = { color: GW }; dC(s);
+  s.addText('TAREAS POR INVOLUCRADO', { x: 0.5, y: 0.33, w: 8, h: 0.32, fontSize: 10, color: GC, fontFace: 'Calibri', bold: true, charSpacing: 2 });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.72, w: 9, h: 0.03, fill: { color: 'E0F7FA' }, line: { color: 'E0F7FA' } });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.82, w: 9, h: 0.42, fill: { color: GC }, line: { color: GC } });
+  s.addText('Tarea', { x: 0.6, y: 0.82, w: 4.5, h: 0.42, fontSize: 11, color: 'FFFFFF', fontFace: 'Calibri', bold: true, valign: 'middle' });
+  s.addText('Responsable', { x: 5.1, y: 0.82, w: 2.2, h: 0.42, fontSize: 11, color: 'FFFFFF', fontFace: 'Calibri', bold: true, valign: 'middle' });
+  s.addText('Fecha limite', { x: 7.3, y: 0.82, w: 2.0, h: 0.42, fontSize: 11, color: 'FFFFFF', fontFace: 'Calibri', bold: true, valign: 'middle' });
+  (d.tareas || []).slice(0, 7).forEach(function(t, i) {
+    var y = 1.24 + i * 0.46, bg = i % 2 === 0 ? 'FFFFFF' : 'F8FEFF';
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: y, w: 9, h: 0.46, fill: { color: bg }, line: { color: 'E0F7FA', pt: 0.5 } });
+    s.addText(t.tarea || '', { x: 0.6, y: y, w: 4.4, h: 0.46, fontSize: 11, color: GG, fontFace: 'Calibri', valign: 'middle', wrap: true });
+    s.addText(t.resp || '', { x: 5.1, y: y, w: 2.1, h: 0.46, fontSize: 11, color: GG, fontFace: 'Calibri', valign: 'middle' });
+    s.addText(t.fecha || '', { x: 7.3, y: y, w: 2.0, h: 0.46, fontSize: 11, color: GL, fontFace: 'Calibri', valign: 'middle' });
+  });
+
+  // S8 Cierre
+  s = pres.addSlide(); s.background = { color: GW }; dL(s);
+  s.addText('GeoVictoria', { x: 2.5, y: 1.8, w: 5, h: 0.42, fontSize: 14, color: GC, fontFace: 'Calibri', align: 'center' });
+  s.addText('Gracias', { x: 1.5, y: 2.2, w: 7, h: 1.0, fontSize: 48, color: GG, fontFace: 'Calibri Light', align: 'center' });
+  s.addText(d.projLead || '', { x: 2.5, y: 3.22, w: 5, h: 0.38, fontSize: 13, color: GL, fontFace: 'Calibri', align: 'center' });
+  s.addText('#YoTeAyudo', { x: 3.5, y: 4.82, w: 3, h: 0.36, fontSize: 14, color: GY, fontFace: 'Calibri', bold: true, align: 'center' });
+
+  return pres.write('blob').then(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var dl = document.getElementById('dl-link');
+    dl.href = url;
+    dl.download = 'Reporte_' + d.projName.replace(/ /g, '_') + '.pptx';
+  });
+}
+
+// Init
+addRisk('', 'Medio', '');
+addTask('', '', '');
+</script>
+</body>
+</html>
