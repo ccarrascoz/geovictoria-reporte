@@ -391,6 +391,10 @@ function generate() {
     setProgress(15, 'Analizando transcripcion con Claude...');
     var partTxt = (partGeo || partCliente) ? 'PARTICIPANTES:\n*GEO: ' + partGeo + '.\n*' + partCliente + '.\n\n' : '';
     var prompt = 'Analiza la transcripcion del proyecto "' + projName + '". Responde SOLO con JSON valido.\n' +
+      'INSTRUCCIONES ESPECIALES:\n' +
+      '1. En la transcripcion, cuando aparezca la palabra book o buk, interpreta siempre como Buk (software de RRHH).\n' +
+      '2. Cuando aparezca RAN o ran, interpreta siempre como RAM (Reporte a Medida).\n' +
+      '3. Busca ACTIVAMENTE compromisos implicitos: reuniones a agendar, coordinaciones pendientes, cosas que alguien se compromete a hacer aunque no usen frases formales como se acordo. Incluyelos en avances, pasos o tareas segun corresponda.\n\n' +
       'Proyecto: ' + projName + ' | JP: ' + projLead + ' | Semana: ' + (week || 'actual') + ' | Avance: ' + (progress || '?') + '\n\n' +
       partTxt + 'TRANSCRIPCION:\n' + trans.substring(0, 8000) + '\n\n' +
       'Devuelve un objeto JSON con estas claves exactas:\n' +
